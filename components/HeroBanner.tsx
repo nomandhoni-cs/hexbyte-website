@@ -1,9 +1,9 @@
-// src/components/HeroBanner.tsx
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
-// Data can be stored in a separate file for larger projects
 const technologies = [
     { name: 'Go', icon: '🔵' },
     { name: 'Python', icon: '🐍' },
@@ -23,55 +23,90 @@ const technologies = [
     { name: 'Docker', icon: '🐳' }
 ];
 
-// Duplicate for the seamless loop effect
-const allTechnologies = [...technologies, ...technologies];
+// Using your updated constants
+const ORBIT_RADIUS = 250;
+const BADGE_WIDTH = 80;
+const BADGE_HEIGHT = 36;
+
+// This calculates how much of the top of the circle is visible. 1.3 = ~65%
+const VISIBLE_ORBIT_FACTOR = 1.3;
+const VISIBLE_ORBIT_HEIGHT = ORBIT_RADIUS * VISIBLE_ORBIT_FACTOR;
+// This calculates the vertical offset to center the visible part
+const ORBIT_Y_OFFSET = ORBIT_RADIUS * (VISIBLE_ORBIT_FACTOR - 1);
 
 const HeroBanner = () => {
     return (
         <section className="relative w-full h-screen flex flex-col justify-center items-center overflow-hidden">
+            {/* Background */}
             <Image
                 src="https://p2myfh92qq.ufs.sh/f/93hqarYp4cDdu18yTspa57e0NVAWpOlihtm43rqY2IfvKy8R"
                 alt="Abstract blue and purple digital network background"
                 fill
-                priority // Crucial for LCP performance
+                priority
                 className="object-cover -z-10"
             />
-            {/* Dark Overlay for Readability */}
-            <div className="absolute inset-0 bg-black/70 -z-10" />
+            <div className="absolute inset-0 bg-black/80 -z-10" />
 
             {/* Main Content */}
-            <div className="z-10 text-center px-6 max-w-5xl">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold font-sans text-white tracking-tighter leading-tight">
+            <div className="z-10 text-center px-6 max-w-5xl flex-grow flex flex-col justify-center -mt-32">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tighter">
                     Transform ideas into scalable, secure, and intelligent solutions
                 </h1>
-                <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-gray-300">
+                <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl font-semibold text-gray-300/70">
                     We architect and build high-performance applications using a modern, battle-tested technology stack.
                 </p>
-                <Link
-                    href="#contact" // Link to a section or page
-                    className="mt-10  inline-block bg-purple-600 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-                >
-                    Start Your Project
-                </Link>
             </div>
 
-            {/* Infinite Scrolling Logo Marquee */}
-            <div className="absolute bottom-0 left-0 w-full h-32 md:h-40 flex items-center">
+            {/* --- IMPROVEMENT: FERRIS WHEEL (UNCLICKABLE) --- */}
+            <div
+                className="absolute left-1/2 bottom-0 -translate-x-1/2 w-full flex justify-center overflow-hidden pointer-events-none"
+                style={{
+                    height: `${VISIBLE_ORBIT_HEIGHT}px`,
+                }}
+            >
+                {/* This is the full circle container, which gets shifted down */}
                 <div
-                    className="w-full inline-flex flex-nowrap overflow-hidden 
-                     [mask-image:_linear-gradient(to_right,transparent_0,_black_10%,_black_90%,transparent_100%)]"
+                    className="relative"
+                    style={{
+                        width: `${ORBIT_RADIUS * 2}px`,
+                        height: `${ORBIT_RADIUS * 2}px`,
+                        transform: `translateY(${ORBIT_Y_OFFSET}px)`,
+                    }}
                 >
-                    <ul className="flex items-center justify-center animate-infinite-scroll" aria-hidden="true">
-                        {allTechnologies.map((tech, index) => (
-                            <li key={`tech-${index}`} className="flex items-center space-x-3 mx-6 group">
-                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gray-800/80 group-hover:bg-gray-700/80 transition-colors">
-                                    <span className="text-lg font-bold text-gray-300">{tech.icon}</span>
+                    {/* Decorative orbit path */}
+                    <div className="absolute inset-0 rounded-full border-2 border-dashed border-purple-500/30" />
+
+                    {/* Rotating container */}
+                    <div className="relative w-full h-full animate-spin-slow">
+                        {technologies.map((tech, i) => {
+                            const angle = (2 * Math.PI * i) / technologies.length;
+                            const x = ORBIT_RADIUS + ORBIT_RADIUS * Math.cos(angle) - (BADGE_WIDTH / 2);
+                            const y = ORBIT_RADIUS + ORBIT_RADIUS * Math.sin(angle) - (BADGE_HEIGHT / 2);
+
+                            return (
+                                <div key={tech.name} className="absolute" style={{ left: `${x}px`, top: `${y}px`, width: `${BADGE_WIDTH}px`, height: `${BADGE_HEIGHT}px` }}>
+                                    <div className="w-full h-full flex items-center justify-center animate-counter-spin-slow">
+                                        <div className="flex items-center gap-2 bg-white/10 border border-white/20 hover:border-purple-500 rounded-full px-3 py-1 text-xs text-white font-medium shadow-md backdrop-blur-md transition-all duration-200 whitespace-nowrap hover:bg-white/20">
+                                            <span className="text-base">{tech.icon}</span>
+                                            <span>{tech.name}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <span className="text-md font-medium text-gray-300 whitespace-nowrap">{tech.name}</span>
-                            </li>
-                        ))}
-                    </ul>
+                            );
+                        })}
+                    </div>
                 </div>
+            </div>
+
+            <div
+                className="absolute left-1/2 -bottom-14 -translate-x-1/2 z-20"
+            >
+                <Link
+                    href="#contact"
+                    className="flex items-center justify-center w-28 h-28 -translate-y-1/2 sm:w-32 sm:h-32 bg-purple-600 text-white font-semibold rounded-full shadow-lg shadow-purple-900/50 transition-all duration-300 hover:scale-110 hover:bg-purple-500 focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black text-center text-base"
+                >
+                    Start Project
+                </Link>
             </div>
         </section>
     );

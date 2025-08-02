@@ -1,5 +1,6 @@
 import HeroBanner from "@/components/HeroBanner";
 import Navbar from "@/components/Navbar";
+import TrustedBy from "@/components/TrustedBy";
 import Image from "next/image";
 
 export default function Home() {
@@ -7,6 +8,7 @@ export default function Home() {
     <div>
       <Navbar />
       <HeroBanner />
+      <TrustedBy />
     </div>
   );
 }
